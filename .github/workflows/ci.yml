@@ -28,9 +28,34 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest flake8
           pip install pytest
-          
+
       - name: Vérifier la qualité du code (Flake8)
         run: flake8 calculator tests --max-line-length=100
 
       - name: Lancer les tests
         run: pytest tests/
+
+  trivy:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Scanner le code avec Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Envoyer les résultats vers GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
