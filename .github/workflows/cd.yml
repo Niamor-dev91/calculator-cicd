@@ -9,5 +9,13 @@ on:
 jobs:
   cd:
     runs-on: ubuntu-24.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     steps:
-      - run: echo "CD workflow triggered after CI completed."
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Construire l'image Docker
+        run: docker build -t calculator:${{ github.event.workflow_run.head_sha }} .
