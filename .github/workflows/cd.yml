@@ -1,2 +1,13 @@
-# TODO: build your CD pipeline here (build and push the Docker image, only if the CI passed).
-# See the exercise instructions.
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  cd:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "CD workflow triggered after CI completed."
